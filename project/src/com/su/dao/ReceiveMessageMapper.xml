@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.su.dao.ReceiveMessageDao"> 
+
+	<insert id="insert" parameterType="receivemessage">
+		insert into to_receivemessage values(null,#{sendId},#{empId},0,null)
+	</insert>
+	<select id="getReceiveMessage" resultType="map" parameterType="map">
+		SELECT  s.sendId sendId,messageTitle,empName,openDate,createDate,receiveId from to_receivemessage r
+		INNER JOIN to_sendmessage s on r.sendID=s.sendID 
+		INNER JOIN tb_emp e on s.EmpID=e.EmpID 
+		<where>
+			r.EmpID=#{empId}
+			and r.MessageState!=2
+			<if test="empName!=null and empName!=''">
+				and e.EmpName like CONCAT('%',#{empName},'%')
+			</if>
+			<if test="page!=null and page!=''">
+				LIMIT #{page},#{pageSize}
+			</if>
+			
+			 
+		</where>
+		
+		 
+	</select>    
+	<select id="getReceiveMessageDetail" resultType="map">
+		SELECT messageTitle,messageContent,empName,openDate from to_receivemessage r 
+		INNER JOIN to_sendmessage s on r.sendID=s.sendID INNER JOIN
+		tb_emp e ON s.EmpID=e.EmpID where receiveId=#{receiveId} and r.MessageState!=2 
+	</select>
+	
+	<update id="updateOpenDate">
+		update to_receivemessage set OpenDate=NOW(),messageState=1 where receiveId=#{receiveId}
+	</update>
+	
+	<update id="delete" parameterType="int[]">
+		update to_receivemessage set messageState=2
+		<where>
+			receiveId in
+			<foreach collection="array" item="l" open="(" close=")" separator=",">
+				#{l}
+			</foreach>
+		</where>
+	</update>
+
+</mapper>

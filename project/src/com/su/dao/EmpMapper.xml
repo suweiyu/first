@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.su.dao.EmpDao"> 
+
+	
+	<select id="getAllName" resultType="map">
+		select empId,empName from tb_emp order by convert(empName using GBK)
+		
+	</select>	
+	<select id="getUser" resultType="emp">
+		select * from tb_emp where empNo=#{empNo} and password=#{password}
+	</select>
+	<select id="getAllEmp" resultType="emp" parameterType="map">
+		SELECT EmpID,EmpNo,password,EmpName,sex,birth,idCard,email,Tel,Address,empType,
+		BankName,BankNo,Sal,comm,subsidy,hiredate,Descript,job from tb_emp
+		<where>
+			<if test="empName!=null and empName!=''">
+				empName like CONCAT('%',#{empName},'%')
+			</if>
+			
+			<if test="job!=null and job!=''">
+				and job=#{job}
+			</if>
+			
+			<if test="empType!=null and empType!=''">
+				and empType=#{empType}
+			</if>
+			<if test="page!=null and page!=''">
+				limit #{page},#{pageSize}
+			</if>
+		</where>
+	</select>
+	
+	<delete id="deleteEmp" parameterType="int[]">
+		DELETE FROM tb_emp 
+		<where>
+			empId in
+			<foreach collection="array" open="(" close=")" item="e" separator=",">
+				#{e}
+			</foreach>
+		</where>
+	</delete>
+	
+	<select id="getAllEmpType" resultType="string">
+		SELECT typename from tb_type where type=1
+	</select>
+	
+	<select id="getAllJob" resultType="string">
+		SELECT typename from tb_type where type=2
+	</select>
+     <insert id="addEmp" parameterType="emp">
+     	INSERT into tb_emp VALUES(null,#{empNo},#{password},#{empName},#{sex},
+     	#{birth},#{idCard},#{email},#{tel},#{address},#{empType},#{bankName},#{bankNo},
+     	#{sal},#{comm},#{subsidy},#{hiredate},#{descript},#{job})
+     </insert>
+     <select id="getEmpById" resultType="emp">
+     	select empId,empNo,password,empName,sex,birth,idCard,email,tel,address,empType,bankName,bankNo,sal,comm,subsidy,hiredate,descript,job from tb_emp where empId=#{empId}
+     </select>
+     
+     <update id="saveUpdateEmp" parameterType="emp">
+     	update tb_emp 
+     	<set>
+     		<if test="empNo!=null and empNo!=''">empNo=#{empNo},</if>
+     		<if test="password!=null and password!=''">password=#{password},</if>
+     		<if test="empName!=null and empName!=''">empName=#{empName},</if>
+     		<if test="sex!=null and sex!=''">sex=#{sex},</if>
+     		<if test="birth!=null and birth!=''">birth=#{birth},</if>
+     		<if test="idCard!=null and idCard!=''">idCard=#{idCard},</if>
+     		<if test="email!=null and email!=''">email=#{email},</if>
+     		<if test="tel!=null and tel!=''">tel=#{tel},</if>
+     		<if test="address!=null and address!=''">address=#{address},</if>
+     		<if test="empType!=null and empType!=''">empType=#{empType},</if>
+     		<if test="bankName!=null and bankName!=''">bankName=#{bankName},</if>
+     		<if test="bankNo!=null and bankNo!=''">bankNo=#{bankNo},</if>
+     		<if test="sal!=null and sal!=''">sal=#{sal},</if>
+     		<if test="comm!=null and comm!=''">comm=#{comm},</if>
+     		<if test="subsidy!=null and subsidy!=''">subsidy=#{subsidy},</if>
+     		<if test="hiredate!=null and hiredate!=''">hiredate=#{hiredate},</if>
+     		<if test="descript!=null and descript!=''">descript=#{descript},</if>
+     		<if test="job!=null and job!=''">job=#{job}</if>
+     	</set>
+     	<where>
+     		empId=#{empId}
+     	</where>
+     </update>
+     
+</mapper>

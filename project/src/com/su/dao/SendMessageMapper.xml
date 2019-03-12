@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.su.dao.SendMessageDao"> 
+
+	<insert id="insert" parameterType="sendmessage" keyProperty="sendId">
+		insert into to_sendmessage values(null,#{empId},#{messageTitle},#{messageContent},now(),#{priority},0)
+	</insert>
+	
+	<update id="updateSendMessageState" parameterType="int[]">
+		UPDATE to_sendmessage SET MessageState=1
+		<where>
+			sendId in
+			<foreach collection="array" item="i" open="(" close=")" separator=",">
+				#{i}
+			</foreach>
+		</where>
+
+		
+	</update>
+	
+	     <select id="getSendMessge" resultMap="mysendMessage" parameterType="map">
+     		SELECT s.sendId sendId,s.empId empId,MessageTitle,MessageContent,
+			CreateDate,priority,s.MessageState MessageState,ReceiveID,e.EmpID receiver,EmpName 
+			from to_sendmessage s INNER JOIN to_receivemessage r on s.sendId=r.sendID INNER JOIN tb_emp e 
+			on r.EmpID=e.EmpID 
+			<where>
+				s.EmpID=#{empId}
+				and s.MessageState=0
+				<if test="empName!=null and empName!=''">
+					and e.EmpName like CONCAT('%',#{empName},'%')
+				</if>
+				<if test="page!=null and page!=''">
+					LIMIT #{page},#{pageSize}
+				</if>
+			
+			 
+			</where>
+     </select>
+     
+         <select id="sendMessgeDetail" resultMap="mysendMessage">
+     		SELECT s.sendId sendId,s.empId empId,MessageTitle,MessageContent,
+CreateDate,priority,s.MessageState MessageState,ReceiveID,e.EmpID receiver,EmpName 
+from to_sendmessage s INNER JOIN to_receivemessage r on s.sendId=r.sendID INNER JOIN tb_emp e 
+on r.EmpID=e.EmpID where s.EmpID=#{empId} and s.MessageState=0 and s.sendId=#{sendId}
+     </select>
+     <resultMap type="sendmessage" id="mysendMessage">
+     	<id column="sendid" property="sendId"/>
+     	<result column="empId" property="empId"/>
+     	<result column="MessageTitle" property="messageTitle"/>
+     	<result column="MessageContent" property="messageContent"/>
+     	<result column="createDate" property="createDate"/>
+     	<result column="priority" property="priority"/>
+     	<result column="MessageState" property="messageState"/>
+     	<collection property="receive" ofType="receiveMessage">
+     		<id column="ReceiveID" property="receiveId"/>
+     		
+     		<association property="emp" javaType="emp">
+     			<id column="receiver" property="empId"/>
+     			<result column="empName" property="empName"/>
+     		</association>
+     	</collection>
+     </resultMap>
+     
+     
+</mapper>
